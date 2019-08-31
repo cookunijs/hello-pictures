@@ -69,6 +69,9 @@
 </template>
 
 <script>
+import Web3 from 'web3'
+const web3 = new Web3('https://rinkeby.infura.io/')
+
 export default {
   data () {
     return {
@@ -76,10 +79,16 @@ export default {
       group: null,
     }
   },
+  mounted: async function() {
+    if(!localStorage.getItem("wallet")) {
+      const result = await web3.eth.accounts.create()
+      await localStorage.setItem("privateKey", result.privateKey)
+    }
+  },
   watch: {
-      group () {
-        this.drawer = false
-      },
+    group () {
+      this.drawer = false
     },
+  },
 }
 </script>
