@@ -17,12 +17,15 @@
 </template>
 
 <script>
+// import config from '../config.json'
+// import client from '~/plugins/ethereum-client'
+// import functions from '~/plugins/functions'
+// import axios from 'axios'
 import Form from '~/components/Form.vue'
-// import VuetifyLogo from '~/components/VuetifyLogo.vue'
 
 export default {
   components: {
     Form
-  }
+  },
 }
 </script>
