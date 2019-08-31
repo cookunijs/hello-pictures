@@ -109,6 +109,15 @@ export default {
     }
   },
   methods: {
+    async create(){
+      this.$emit("create", {
+        name: this.name,
+        auther: this.auther,
+        metaData: this.metaData,
+        metaDataKeys: this.metaDataKeys,
+        imgHash: this.imgHash
+      })
+    },
     pickImage() {
       this.$refs.image.click()
     },
@@ -127,34 +136,14 @@ export default {
       } else {
         this.buffer =  ''
       }
-			// if(files[0] !== undefined) {
-			// 	this.imageName = files[0].name
-			// 	if(this.imageName.lastIndexOf('.') <= 0) {
-			// 		return
-			// 	}
-			// 	const fr = new FileReader ()
-			// 	fr.readAsDataURL(files[0])
-			// 	fr.addEventListener('load', () => {
-			// 		this.imageUrl = fr.result
-			// 		this.imageFile = files[0]
-			// 	})
-			// } else {
-			// 	this.imageName = ''
-			// 	this.imageFile = ''
-			// 	this.imageUrl = ''
-      // }
       this.inputImage = true
     },
-    fractionCalculation(data) {
-      return data.numerator/data.denominator
-    },
-    connectionGPSValue(data) {
-      let result = ''
-      data.forEach(data => {
-        if(!result == '') result = result + ','
-        result = result + String(this.fractionCalculation(data))
-      })
-      return result
+    handleOk() {
+      if (!this.buffer) {
+        alert('Please fill in the information.');
+      } else {
+        this.onSubmit()
+      }
     },
     generateMetaData(file){
       EXIF.getData(file,()=> {
@@ -178,50 +167,30 @@ export default {
         console.log(this.metaData)
       })
     },
-    create(){
-      this.$emit("create", {
-        imageName: this.imageName,
-        imageFile: this.imageFile,
-        imageUrl: this.imageUrl,
-        name: this.name,
-        auther: this.auther,
-        metaData: this.metaData,
-        metaDataKeys: this.metaDataKeys,
+    fractionCalculation(data) {
+      return data.numerator/data.denominator
+    },
+    connectionGPSValue(data) {
+      let result = ''
+      data.forEach(data => {
+        if(!result == '') result = result + ','
+        result = result + String(this.fractionCalculation(data))
       })
+      return result
     },
-    // async captureFile(file) {
-    //  const reader = await new FileReader()
-    //  console.log(file)
-    //   if (typeof file !== 'undefined') {
-    //     await reader.readAsArrayBuffer(file);
-    //     reader.onloadend = async () => {
-    //       console.log(await this.convertToBuffer(reader.result))
-    //       this.buffer = await this.convertToBuffer(reader.result)
-    //     }
-    //   } else {
-    //     this.buffer =  ''
-    //   }
-    // },
-    async convertToBuffer(reader) {
-      return Buffer.from(reader);
-    },
-    onSubmit() {
-      console.log(this.buffer)
+    async onSubmit() {
       this.$root.loading = true;
       let imgHash;
-      ipfs.add(this.buffer)
+      await ipfs.add(this.buffer)
         .then((hashedImg) => {
           imgHash = hashedImg[0].hash;
           console.log("imgHash: " + imgHash)
           this.imgHash = imgHash
         })
+      this.create()
     },
-    handleOk() {
-      if (!this.buffer) {
-        alert('Please fill in the information.');
-      } else {
-        this.onSubmit()
-      }
+    async convertToBuffer(reader) {
+      return Buffer.from(reader);
     },
   },
   }
